@@ -30,6 +30,73 @@ Kali ini kita akan mempelajari bagaimana **Packet-Filtering Firewall** menggunak
 
 ## **Packet-Filtering Firewall**
 
-Struktur pada IPTables
+![Struktur IPTables pada Komputer](/img/netfilter-iptables-diagram-a.jpg)
+
+Iptables adalah suatu tools dalam sistem operasi linux yang berfungsi sebagai alat untuk melakukan penyaringan (filter) terhadap lalu lintas (traffic) data. Secara sederhana, iptables digambarkan sebagai pengatur lalu lintas data. Aturan-aturan lalu lintas pada iptables, berada dalam sebuah tabel, dimana ***table*** adalah sekelompok ***chain*** dan ***chain*** adalah sekelompok ***rules***. Pada *high-level* iptables, memungkinkan terdapat *multiple tables* dengan *multiple chains*. Secara *default*, iptables berjalan tanpa *rules* apapun.
+
+Struktur kerja IPTables,
 
     iptables -> Tables -> Chains -> Rules
+
+dapat digambarkan dengan struktur seperti ini.
+
+![IPTables Structure](/img/iptables-table-chain-rule-structure.png)
+
+### IPTables Configuration
+---
+
+#### Tables and Chains
+
+IPTables mempunyai 4 *built-in tables*.
+
+1. **Filter Table**
+    
+    Table ini adalah tabel default pada iptables. Jadi, jika kita tidak mendefinisikan table yang kita gunakan pada iptables, maka secara default menggunakan Filter table. Filter Table memiliki *built-in chain*, yaitu :
+    - **INPUT** chain – Untuk memfilter paket yang menuju jaringan lokal.
+    - **OUTPUT** chain – Untuk memfilter paket yang dari jaringan lokal ke jaringan luar.
+    - **FORWARD** chain – Untuk memfilter paket yang hanya akan diteruskan (melewati) firewall.
+    ![Chain Illustration](/img/iptabes-tutorial-input-forward-output.jpg)
+
+2. **NAT Table**
+
+    NAT Table berfungsi untuk mentranslasikan jaringan lokal yang melewati firewall menuju jaringan luar. NAT Table memiliki *built-in chain*, yaitu :
+    - **PREROUTING** chain – Untuk mengubah paket data sebelum paket tersebut melalui *route* tujuannya. Paket ditranslasikan langsung saat masuk sistem. Chain ini akan mentranslasikan IP address tujuan paket ke IP address yang sesuai dengan *routing* pada jaringan lokal. Chain ini digunakan untuk DNAT (destination NAT).
+    - **POSTROUTING** chain – Untuk mengubah paket data setelah paket tersebut melalui *route* tujuannya. Paket ditranslasikan saat menuju ke luar sistem. Chain ini akan mentranslasikan IP address dari asalnya (jaringan lokal) paket data ke IP address yang sesuai dengan *routing* ke server tujuan (di jaringan luar). Chain ini digunakan untuk SNAT (source NAT).
+    - **OUTPUT** chain – NAT untuk paket yang berasal dari jaringan lokal firewall.
+
+3. **Mangle Table**
+
+    Mangle Table berfungsi untuk melakukan perubahan pada paket data. Perubahan yang dilakukan pada TCP header. Mangle Table memiliki *built-in chain*, yaitu :
+    
+    - **PREROUTING** chain
+    - **OUTPUT** chain
+    - **FORWARD** chain
+    - **INPUT** chain
+    - **POSTROUTING** chain
+
+4. **Raw Table**
+
+    Raw Table berfungsi untuk konfigurasi   pengecualian paket yang melewati firewall. Raw Table memiliki *built-in chain*, yaitu :
+
+    - **PREROUTING** chain
+    - **OUTPUT** chain
+
+***3 Table utama pada IPTables dapat digambarkan sebagai berikut.***
+
+![Filter-NAT-Mangle Table](/img/iptables-filter-nat-mangle-tables.png)
+
+#### Rules
+
+Hal-hal yang perlu diingat untuk memberlakukan *rules* pada IPTables, yaitu :
+
+- **Rules** mempunyai kriteria dan target.
+- **Jika** kriteria sudah **sesuai**, firewall akan mengeksekusi *rules* pada target atau suatu nilai (parameter) yang disebutkan pada target.
+- **Jika** kriteria **tidak sesuai**, firewall akan mengeksekusi *rule* yang selanjutnya.
+
+Parameter yang dapat di definisikan pada target, yaitu :
+
+1. **ACCEPT** – Firewall akan mengizinkan paket data.
+2. **DROP** – Firewall akan menolak paket data.
+3. **QUEUE** – Firewall akan meneruskan paket data ke pengguna.
+4. **RETURN** – Firewall akan berhenti mengeksekusi rangkaian *rules* pada chain untuk paket data tersebut dan aturan pada *chain* tersebut dieksekusi ulang.
+

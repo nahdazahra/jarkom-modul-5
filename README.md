@@ -1,12 +1,12 @@
 # Modul 5 Jaringan Komputer 2018
 
 ## **Table of Content**
-- Definisi
-- Mengapa perlu firewall?
-- Cara Kerja Firewall
-- Jenis-jenis Firewall
+1. Definisi
+2. Mengapa perlu firewall?
+3. Cara Kerja Firewall
+4. Jenis-jenis Firewall
 
-## **Definisi**
+## **1. Definisi**
 Berdasarkan [RFC 2828](http://www.faqs.org/rfcs/rfc2828.html)
 ```
 (I) An internetwork gateway that restricts data communication
@@ -17,14 +17,14 @@ Berdasarkan [RFC 2828](http://www.faqs.org/rfcs/rfc2828.html)
     gateway.)
 ```
 
-## **Mengapa perlu firewall?**
+## **2. Mengapa perlu firewall?**
 Firewall diperlukan karena keamanan, diantara pertimbangan adanya firewall adalah:
 - Pencurian data pada jaringan internal
 - Pengaksesan data oleh orang yang tidak berhak
 - Denial of Service
 
 
-## **Firewall**
+## **3. Firewall**
 
 ![Ilustrasi](img/illustration.jpg)
 Gambar 1. Ilustrasi Firewall (sumber: https://opensourceforu.com/2016/07/implementing-a-software-defined-network-sdn-based-firewall/)
@@ -37,7 +37,7 @@ Cara-cara firewall dalam melindungi jaringan komputer internal, antara lain :
 - Menolak dan menyaring paket data berdasakan konten yang tidak diinginkan. Misal, firewall yang terintegrasi pada suatu antivirus akan menyaring dan mencegah file yang sudah terjangkit virus memasuki jaringan internal.
 - Melaporkan semua aktivitas jaringan dan kegiatan firewall (log).
 
-## **Jenis-jenis Firewall**
+## **4. Jenis-jenis Firewall**
 
 Firewall mempunyai beberapa tipe untuk melindungi jaringan, antara lain :
 1. **Packet-Filtering Firewall**
@@ -53,11 +53,11 @@ Firewall ini bekerja pada *application layer* OSI sehingga dapat menyaring aplik
 Fasilitas proxy server menggunakan perantara (proxy) sebagai jembatan hubungan antara LAN dan WAN/Inernet.  Proxy server umumnya berfungsi pada lapisan aplikasi, oleh sebab itu sering juga disebut application firewall. Jika packet filter hanya berfungsi menyaring paket-paket yang diterima tanpa mengubah paket-paket tersebut, proxy server menerima dan mengubah alamat paket dengan memberikan alamat proxy server. Dengan demikian, menyembunyikan alamat pengirim yang sebenarnya. Untuk itu, proxy server umumnya mempergunakan metode yang dinamakan Network Address Translation (NAT), yang berfungsi untuk menyembunyikan IP address pribadi yang dipakai oleh LAN. Selain memeriksa alamat paket, proxy server juga memeriksa isi paket.
 
 4. **Stateful Inspection Firewall**
-Firewall dengan metode stateful inspection ini bekerja di antara lapisan data link dan network referensi model OSI. Jika suatu paket data diterima, langkah pertama yang dilakukan oleh stateful inspection ini adalah memeriksa informasi header paket data dengan tabel state untuk melihat apakah sudah ada jalur yang tersedia untuk paket tersebut. Jika jalur sudah tersedia, maka stateful inspection membuat asumsi bahwa paket boleh diterima dan diteruskan ke tujuannya. Jika jalur belum tersedia, maka stateful inspection mencocokkan paket data dengan peraturan keamanan (security policy) yang telah dibuat untuk menentukan apakah paket mendapat izin untuk diteruskan. Stateful inspection terus-menerus mengawasi setipa koneksi yang terjadi dan membuat catatan pada tabel status yang dimilikinya.
+Firewall dengan metode stateful inspection ini bekerja di antara lapisan data link dan network referensi model OSI. Jika suatu paket data diterima, langkah pertama yang dilakukan oleh stateful inspection ini adalah memeriksa informasi header paket data dengan tabel state untuk melihat apakah sudah ada jalur yang tersedia untuk paket tersebut. Jika jalur sudah tersedia, maka stateful inspection membuat asumsi bahwa paket boleh diterima dan diteruskan ke tujuannya. Jika jalur belum tersedia, maka stateful inspection mencocokkan paket data dengan peraturan keamanan (security policy) yang telah dibuat untuk menentukan apakah paket mendapat izin untuk diteruskan. Stateful inspection terus-menerus mengawasi setiap koneksi yang terjadi dan membuat catatan pada tabel status yang dimilikinya.
 
-Kali ini kita akan mempelajari bagaimana **Packet-Filtering Firewall** menggunakan `$ iptables`.
+Kali ini kita akan mempelajari bagaimana **Packet-Filtering Firewall** menggunakan `$ iptables`. Sekarang kita perhatikan dokumentasinya pada `$ man iptables`.
 
-## **Packet-Filtering Firewall**
+## **5. iptables**
 
 ![Struktur IPTables pada Komputer](/img/netfilter-iptables-diagram-a.jpg)
 
@@ -71,9 +71,13 @@ dapat digambarkan dengan struktur seperti ini.
 
 ![IPTables Structure](/img/iptables-table-chain-rule-structure.png)
 
+<<<<<<< HEAD
 ### IPTables Configuration
 ---
 #### Tables and Chains
+=======
+### **5.1. Tables and Chains**
+>>>>>>> 47f14cde6b883aa323d0373e593689fbab997db1
 
 IPTables mempunyai 4 *built-in tables*.
 
@@ -109,11 +113,10 @@ IPTables mempunyai 4 *built-in tables*.
     - **PREROUTING** chain
     - **OUTPUT** chain
 
-***3 Table utama pada IPTables dapat digambarkan sebagai berikut.***
-
+3 Table utama pada IPTables dapat digambarkan sebagai berikut.
 ![Filter-NAT-Mangle Table](/img/iptables-filter-nat-mangle-tables.png)
 
-#### Rules
+### **5.2. Rules**
 
 Hal-hal yang perlu diingat untuk memberlakukan *rules* pada IPTables, yaitu :
 

@@ -73,7 +73,6 @@ dapat digambarkan dengan struktur seperti ini.
 
 ### IPTables Configuration
 ---
-
 #### Tables and Chains
 
 IPTables mempunyai 4 *built-in tables*.
@@ -122,9 +121,21 @@ Hal-hal yang perlu diingat untuk memberlakukan *rules* pada IPTables, yaitu :
 - **Jika** kriteria sudah **sesuai**, firewall akan mengeksekusi *rules* pada target atau suatu nilai (parameter) yang disebutkan pada target.
 - **Jika** kriteria **tidak sesuai**, firewall akan mengeksekusi *rule* yang selanjutnya.
 
-Parameter yang dapat di definisikan pada target, yaitu :
+Tujuan paket yang dapat di definisikan pada target, yaitu :
 
 1. **ACCEPT** – Firewall akan mengizinkan paket data.
 2. **DROP** – Firewall akan menolak paket data.
-3. **QUEUE** – Firewall akan meneruskan paket data ke pengguna.
-4. **RETURN** – Firewall akan berhenti mengeksekusi rangkaian *rules* pada chain untuk paket data tersebut dan aturan pada *chain* tersebut dieksekusi ulang.
+3. **RETURN** – Firewall akan berhenti mengeksekusi rangkaian *rules* pada chain untuk paket data tersebut dan aturan pada *chain* tersebut dieksekusi ulang.
+
+#### Syntax
+Secara umum, untuk memodifikasi aturan yang berlaku pada IPTables dengan menjalankan
+
+```bash
+iptables [-t table] command chain rule-specification
+```
+
+| Commands      | Description   |
+| ------------- |:------------------------------------------------ |
+| -A, --append  | menambahkan rules pada chain
+| -C, --check   | mengecek rule apa saja yang berlaku pada chain
+| zebra stripes | are neat      |

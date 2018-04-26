@@ -57,7 +57,7 @@ Firewall dengan metode stateful inspection ini bekerja di antara lapisan data li
 
 Kali ini kita akan mempelajari bagaimana **Packet-Filtering Firewall** menggunakan `$ iptables`. Sekarang kita perhatikan dokumentasinya pada `$ man iptables`.
 
-## **5. iptables**
+## **5. IPTables**
 
 ![Struktur IPTables pada Komputer](/img/netfilter-iptables-diagram-a.jpg)
 
@@ -71,13 +71,7 @@ dapat digambarkan dengan struktur seperti ini.
 
 ![IPTables Structure](/img/iptables-table-chain-rule-structure.png)
 
-<<<<<<< HEAD
-### IPTables Configuration
----
-#### Tables and Chains
-=======
 ### **5.1. Tables and Chains**
->>>>>>> 47f14cde6b883aa323d0373e593689fbab997db1
 
 IPTables mempunyai 4 *built-in tables*.
 

@@ -146,6 +146,7 @@ Beberapa command yang sering digunakan pada iptables :
 | -F or --flush [chain]                                   | menghilangkan semua rules pada chain tertentu (semua chain jika chain tidak disebutkan)
 
 Beberapa parameter yang perlu diketahui :
+
 | Parameter                         | Descripton                        |
 | --------------------------------- | :-------------------------------- |
 | -m, --match match                 | 

@@ -5,9 +5,11 @@
 2. Mengapa perlu firewall?
 3. Cara Kerja Firewall
 4. Jenis-jenis Firewall
+5. IPTables
 
 ## **1. Definisi**
 Berdasarkan [RFC 2828](http://www.faqs.org/rfcs/rfc2828.html)
+
 ```
 (I) An internetwork gateway that restricts data communication
     traffic to and from one of the connected networks (the one said to
@@ -81,14 +83,12 @@ IPTables mempunyai 4 *built-in tables*.
     - **INPUT** chain – Untuk memfilter paket yang menuju jaringan lokal.
     - **OUTPUT** chain – Untuk memfilter paket yang dari jaringan lokal ke jaringan luar.
     - **FORWARD** chain – Untuk memfilter paket yang hanya akan diteruskan (melewati) firewall.
-    ![Chain Illustration](/img/iptabes-tutorial-input-forward-output.jpg)
 
 2. **NAT Table**
 
     NAT Table berfungsi untuk mentranslasikan jaringan lokal yang melewati firewall menuju jaringan luar. NAT Table memiliki *built-in chain*, yaitu :
-    - **PREROUTING** chain – Untuk mengubah paket data sebelum paket tersebut melalui *route* tujuannya. Paket ditranslasikan langsung saat masuk sistem. Chain ini akan mentranslasikan IP address tujuan paket ke IP address yang sesuai dengan *routing* pada jaringan lokal. Chain ini digunakan untuk DNAT (destination NAT).
-    - **POSTROUTING** chain – Untuk mengubah paket data setelah paket tersebut melalui *route* tujuannya. Paket ditranslasikan saat menuju ke luar sistem. Chain ini akan mentranslasikan IP address dari asalnya (jaringan lokal) paket data ke IP address yang sesuai dengan *routing* ke server tujuan (di jaringan luar). Chain ini digunakan untuk SNAT (source NAT).
-    - **OUTPUT** chain – NAT untuk paket yang berasal dari jaringan lokal firewall.
+    - **PREROUTING** chain – pada chain **PREROUTING**, dijalankan DNAT (Destination NAT) yaitu ketika anda mengubah alamat tujuan dari paket pertama dengan kata lain anda merubah ke mana komunikasi terjadi. Destination NAT selalu dilakukan sebelum routing, ketika paket masuk dari jaringan. Port forwarding, load sharing dan transparent proxy semuanya adalah bentuk dari DNAT. Destination NAT dilakukan pada chain PREROUTING, pas ketika paket masuk, hal ini berarti semua tools di dalam router akan melihat paket akn pergi ke tujuan yang sebenarnya . Hal ini juga berarti bahwa opsi '-i' (incoming interface) bisa digunakan. Destination NAT dispesifikasikan dengan menggunakan '-j DNAT' dan opsi '--to-destination' menspesifikasikan sebuah alamat IP, range alamat IP dan range dari port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
+    - **POSTROUTING** chain – pada chain **POSTROUTING** dijalankan SNAT (Source NAT), yaitu ketika anda mengubah alamat asal dari paket pertama dengan kata lain anda mengubah dari mana koneksi terjadi. Source NAT selalu dilakukan setelah routing, sebelum paket keluar ke jaringan. Masquerading adalah contoh dari SNAT. Untuk melakukan Source NAT anda harus merubah asal dari koneksi. Hal ini dilakukan di chain POSTROUTING, saat sebelum keluar. Hal ini sangat penting, dikarenakan berarti tools lain yang di dalam router itu (routing, packet filtering) akan melihat paket itu tidak berubah. Hal ini juga berarti opsi '-o' (outgoing interface) juga bisa digunakan. Source dispesifikasikan dengan menggunakan '-j SNAT', dan juga opsi '--to-source' untuk menspesifikasikan sebuah alamat IP, range alamat IP dan port atau range port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
 
 3. **Mangle Table**
 
@@ -125,14 +125,46 @@ Tujuan paket yang dapat di definisikan pada target, yaitu :
 3. **RETURN** – Firewall akan berhenti mengeksekusi rangkaian *rules* pada chain untuk paket data tersebut dan aturan pada *chain* tersebut dieksekusi ulang.
 
 #### Syntax
+
 Secara umum, untuk memodifikasi aturan yang berlaku pada IPTables dengan menjalankan
 
 ```bash
 iptables [-t table] command chain rule-specification
 ```
 
-| Commands      | Description   |
-| ------------- |:------------------------------------------------ |
-| -A, --append  | menambahkan rules pada chain
-| -C, --check   | mengecek rule apa saja yang berlaku pada chain
-| zebra stripes | are neat      |
+Beberapa command yang sering digunakan pada iptables :
+| Commands, Syntax                                        | Description                                      |
+| ------------------------------------------------------- |:------------------------------------------------ |
+| -A or --append chain rule-specification                 | menambahkan rules pada chain
+| -C or --check chain rule-specification                  | mengecek rule apa saja yang berlaku pada chain
+| -D or --delete chain {rule-specification \| rulenum}    | menghapus rules pada chain
+| -I or --insert chain [rulenum] rule-specification       | menyisipkan rules pada urutan tertentu
+| -R or --replace chain rulenum rule-specification        | mengganti rules pada chain tertentu
+| -L or --list [chain]                                    | melihat daftar rules yang berlaku berdasarkan chain
+| -S or --list-rules [chain]                              | melihat semua rules yang berlaku pada chain
+| -F or --flush [chain]                                   | menghilangkan semua rules pada chain tertentu (semua chain jika chain tidak disebutkan)
+
+Beberapa parameter yang perlu diketahui :
+| Parameter                         | Descripton                        |
+| --------------------------------- | :-------------------------------- |
+| -m, --match match                 | 
+| -j, --jump target                 | 
+| -g, --goto chain                  | 
+| [!] -i, --in-interface name       | 
+| [!] -o, --out-interface name      | 
+| -c, --set-counters packets bytes  | 
+| --line-numbers                    | 
+| --to                              | 
+| --from                            | 
+
+Untuk opsi command maupun parameter lebih lengkap dapat dilihat pada dokumentasi `iptables`, dengan menjalankan
+
+```bash
+man iptables
+```
+
+## SOAL LATIHAN
+
+1. Komputer di subnet MENANGGAL tidak diizinkan mengakses server BENOWO
+2. Komputer di subnet KERTAJAYA tidak dapat mengakses komputer di subnet MENANGGAL pada pukul 10.00 - 19.00
+3. Block port 80 agar BENOWO tidak bisa mengakses HTTP

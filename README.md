@@ -133,6 +133,7 @@ iptables [-t table] command chain rule-specification
 ```
 
 Beberapa command yang sering digunakan pada iptables :
+
 | Commands, Syntax                                        | Description                                      |
 | ------------------------------------------------------- |:------------------------------------------------ |
 | -A or --append chain rule-specification                 | menambahkan rules pada chain

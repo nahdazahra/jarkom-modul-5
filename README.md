@@ -108,6 +108,7 @@ IPTables mempunyai 4 *built-in tables*.
     - **OUTPUT** chain
 
 3 Table utama pada IPTables dapat digambarkan sebagai berikut.
+
 ![Filter-NAT-Mangle Table](/img/iptables-filter-nat-mangle-tables.png)
 
 ### **5.2. Rules**
@@ -164,6 +165,11 @@ Untuk opsi command maupun parameter lebih lengkap dapat dilihat pada dokumentasi
 ```bash
 man iptables
 ```
+
+### Praktik
+
+Kita coba menggunakan cheatsheet pada link berikut https://gist.github.com/davydany/0ad377f6de3c70056d2bd0f1549e1017
+
 
 ## SOAL LATIHAN
 

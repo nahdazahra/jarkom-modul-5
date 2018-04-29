@@ -80,14 +80,34 @@ IPTables mempunyai 4 *built-in tables*.
 1. **Filter Table**
 
     Table ini adalah tabel default pada iptables. Jadi, jika kita tidak mendefinisikan table yang kita gunakan pada iptables, maka secara default menggunakan Filter table. Filter Table memiliki *built-in chain*, yaitu :
-    - **INPUT** chain – Untuk memfilter paket yang menuju jaringan lokal.
-    - **OUTPUT** chain – Untuk memfilter paket yang dari jaringan lokal ke jaringan luar.
-    - **FORWARD** chain – Untuk memfilter paket yang hanya akan diteruskan (melewati) firewall.
+    - **INPUT** chain – Untuk memfilter paket yang menuju jaringan lokal. Contoh syntax:
+      ```bash
+      # iptables -A INPUT -s 10.10.10.10 -j ACCEPT
+      
+      Penjelasan:
+      - ACCEPT semua paket masuk (INPUT) dari IP 10.10.10.10
+      ```
+      
+    - **OUTPUT** chain – Untuk memfilter paket yang dari jaringan lokal ke jaringan luar. Contoh syntax:
+    ```bash
+      # iptables -A OUTPUT -d 5.5.5.5 -j ACCEPT
+      
+      Penjelasan:
+      - ACCEPT semua paket keluar (OUTPUT) menuju 5.5.5.5
+      ```
+    - **FORWARD** chain – Untuk memfilter paket yang hanya akan diteruskan (melewati) firewall. Contoh syntax:
+      ```
+      # iptables -A FORWARD -s 10.10.10.10 -j ACCEPT
+      
+      Penjelasan:
+      - ACCEPT semua paket keluar yang melewati firewall yang berasal dari 10.10.10.10
+      ```
 
 2. **NAT Table**
 
     NAT Table berfungsi untuk mentranslasikan jaringan lokal yang melewati firewall menuju jaringan luar. NAT Table memiliki *built-in chain*, yaitu :
     - **PREROUTING** chain – pada chain **PREROUTING**, dijalankan DNAT (Destination NAT) yaitu ketika anda mengubah alamat tujuan dari paket pertama dengan kata lain anda merubah ke mana komunikasi terjadi. Destination NAT selalu dilakukan sebelum routing, ketika paket masuk dari jaringan. Port forwarding, load sharing dan transparent proxy semuanya adalah bentuk dari DNAT. Destination NAT dilakukan pada chain PREROUTING, pas ketika paket masuk, hal ini berarti semua tools di dalam router akan melihat paket akn pergi ke tujuan yang sebenarnya . Hal ini juga berarti bahwa opsi '-i' (incoming interface) bisa digunakan. Destination NAT dispesifikasikan dengan menggunakan '-j DNAT' dan opsi '--to-destination' menspesifikasikan sebuah alamat IP, range alamat IP dan range dari port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
+      
     - **POSTROUTING** chain – pada chain **POSTROUTING** dijalankan SNAT (Source NAT), yaitu ketika anda mengubah alamat asal dari paket pertama dengan kata lain anda mengubah dari mana koneksi terjadi. Source NAT selalu dilakukan setelah routing, sebelum paket keluar ke jaringan. Masquerading adalah contoh dari SNAT. Untuk melakukan Source NAT anda harus merubah asal dari koneksi. Hal ini dilakukan di chain POSTROUTING, saat sebelum keluar. Hal ini sangat penting, dikarenakan berarti tools lain yang di dalam router itu (routing, packet filtering) akan melihat paket itu tidak berubah. Hal ini juga berarti opsi '-o' (outgoing interface) juga bisa digunakan. Source dispesifikasikan dengan menggunakan '-j SNAT', dan juga opsi '--to-source' untuk menspesifikasikan sebuah alamat IP, range alamat IP dan port atau range port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
 
 3. **Mangle Table**

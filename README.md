@@ -82,28 +82,28 @@ IPTables mempunyai 4 *built-in tables*.
     Table ini adalah tabel default pada iptables. Jadi, jika kita tidak mendefinisikan table yang kita gunakan pada iptables, maka secara default menggunakan Filter table. Filter Table memiliki *built-in chain*, yaitu :
     - **INPUT** chain – Untuk memfilter paket yang menuju jaringan lokal. Contoh syntax:
       ```bash
-      # iptables --append INPUT --source 10.10.10.10 --jump ACCEPT
-      # iptables -A INPUT -s 10.10.10.10 -j ACCEPT
+      # iptables --append INPUT --source 10.151.36.0/24 --jump ACCEPT
+      # iptables -A INPUT -s 10.151.36.0/24 -j ACCEPT
       
       Penjelasan:
-      - ACCEPT semua paket masuk (INPUT) dari IP 10.10.10.10
+      - DROP semua paket masuk (INPUT) dari subnet 10.151.36.0/24
       ```
       
     - **OUTPUT** chain – Untuk memfilter paket yang dari jaringan lokal ke jaringan luar. Contoh syntax:
       ```bash
-      # iptables --append OUTPUT --destionation 5.5.5.5 --jump ACCEPT
-      # iptables -A OUTPUT -d 5.5.5.5 -j ACCEPT
+      # iptables --append OUTPUT --destination 10.151.36.5 --jump DROP
+      # iptables -A OUTPUT -d 10.151.36.5 -j DROP
       
       Penjelasan:
-      - ACCEPT semua paket keluar (OUTPUT) menuju 5.5.5.5
+      - DROP semua paket keluar (OUTPUT) menuju 10.151.36.5
       ```
     - **FORWARD** chain – Untuk memfilter paket yang hanya akan diteruskan (melewati) firewall. Contoh syntax:
       ```
-      # iptables --append FORWARD --source 10.10.10.10 --jump ACCEPT
-      # iptables -A FORWARD -s 10.10.10.10 -j ACCEPT
+      # iptables --append FORWARD --source 10.151.36.0/24 --jump ACCEPT
+      # iptables -A FORWARD -s 10.151.36.0/24 -j ACCEPT
       
       Penjelasan:
-      - ACCEPT semua paket keluar yang melewati firewall yang berasal dari 10.10.10.10
+      - ACCEPT semua paket keluar yang melewati firewall yang berasal dari 10.151.36.0/24
       ```
 
 2. **NAT Table**

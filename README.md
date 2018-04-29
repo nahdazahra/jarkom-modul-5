@@ -89,7 +89,7 @@ IPTables mempunyai 4 *built-in tables*.
       ```
       
     - **OUTPUT** chain – Untuk memfilter paket yang dari jaringan lokal ke jaringan luar. Contoh syntax:
-    ```bash
+      ```bash
       # iptables -A OUTPUT -d 5.5.5.5 -j ACCEPT
       
       Penjelasan:

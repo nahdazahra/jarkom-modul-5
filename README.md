@@ -214,32 +214,80 @@ man iptables-extension
 
 ### **Praktik**
 
-#### List default policy for each chain
+#### List default policy untuk setiap chain
 ```bash
 iptables -L | grep policy
 ```
-
-#### Change the default policy for a Chain
+#### 
+#### Change default policy for a Chain
 ```bash
-iptables --policy {ACCEPT | DROP}
+iptables --policy {ACCEPT | DROP | REJECT}
 ```
 
-#### Set Default Policy for INPUT to ACCEPT
-
-```bash
-iptables --policy INPUT ACCEPT
-```
-
-#### Set Default Policy for OUTPUT to DROP
-
-```bash
-iptables --policy OUTPUT DROP
-```
-
-#### Set Default Policy for FORWARD to REJECT
+Example :
 
 ```bash
 iptables --policy FORWARD ACCEPT
+```
+
+#### ACCEPT koneksi dari sebuah alamat IP
+
+```bash
+iptables -A INPUT -s 10.10.10.10 -j ACCEPT
+
+# Penjelasan : 
+# ACCEPTS semua koneksi/paket yang berasal dari IP 10.10.10.10
+# -A <CHAIN>  : menambahakan rule yang dispesifikasikan
+# -s <SOURCE> : SOURCE - alamat asal dari sebuah koneksi 
+# -j <ACTION> : (jump) - mendefinisikan apa yang harus dilakukan ketika paket sesuai dengan rule tersebut.
+```
+
+#### DROP koneksi dari sebuah subnet
+
+```bash
+iptables -A INPUT -s 10.10.10.0/24 -j DROP
+
+# Penjelasan :
+# BLOK semua paket/koneksi yang berasal dari subnet 10.10.10.0/24 
+# -A <CHAIN>  : menambahakan rule yang dispesifikasikan
+# -s <SOURCE> : SOURCE - alamat asal dari sebuah koneksi 
+# -j <ACTION> : (jump) - mendefinisikan apa yang harus dilakukan ketika paket sesuai dengan rule tersebut.
+```
+
+#### REJECT OUTBOUND Connections for an IP on a Specific Port (SSH)
+
+```bash
+iptables -A OUTPUT -p 22 --dport ssh -s 10.10.10.10 -j REJECT
+
+# Penjelasan :
+# REJECTs semua paket\koneksi dari alamat IP 10.10.10.10 pada port 22 (TCP).
+# -A <CHAIN>  : menambahakan rule yang dispesifikasikan
+# -s <SOURCE> : SOURCE - alamat asal dari sebuah koneksi 
+# -j <ACTION> : (jump) - mendefinisikan apa yang harus dilakukan ketika paket sesuai dengan rule tersebut.
+```
+
+#### DROP All OUTGOING Connections; ALLOW only CONNECTIONS to 192.168.1.1
+
+```bash
+iptables --policy OUTPUT DROP
+# Penjelasan :
+# DROP semua koneksi yang keluar
+
+iptables -A OUTPUT -d 192.168.1.1 -j ACCEPT
+# Penjelasan :
+# ALLOW koneksi yang menuju alamat IP 192.168.1.1
+```
+
+#### Menyimpan Rules IPTables
+
+```bash
+sudo /sbin/iptables-save
+```
+
+#### Menghapus semua Rules pada IPTables
+
+```bash
+iptables -F
 ```
 
 ### References

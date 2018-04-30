@@ -82,8 +82,8 @@ IPTables mempunyai 4 *built-in tables*.
     Table ini adalah tabel default pada iptables. Jadi, jika kita tidak mendefinisikan table yang kita gunakan pada iptables, maka secara default menggunakan Filter table. Filter Table memiliki *built-in chain*, yaitu :
     - **INPUT** chain – Untuk memfilter paket yang menuju jaringan lokal. Contoh syntax:
       ```bash
-      # iptables --append INPUT --source 10.151.36.0/24 --jump ACCEPT
-      # iptables -A INPUT -s 10.151.36.0/24 -j ACCEPT
+      # iptables --append INPUT --source 10.151.36.0/24 --jump DROP
+      # iptables -A INPUT -s 10.151.36.0/24 -j DROP
       
       Penjelasan:
       - DROP semua paket masuk (INPUT) dari subnet 10.151.36.0/24
@@ -110,8 +110,24 @@ IPTables mempunyai 4 *built-in tables*.
 
     NAT Table berfungsi untuk mentranslasikan jaringan lokal yang melewati firewall menuju jaringan luar. NAT Table memiliki *built-in chain*, yaitu :
     - **PREROUTING** chain – pada chain **PREROUTING**, dijalankan DNAT (Destination NAT) yaitu ketika anda mengubah alamat tujuan dari paket pertama dengan kata lain anda merubah ke mana komunikasi terjadi. Destination NAT selalu dilakukan sebelum routing, ketika paket masuk dari jaringan. Port forwarding, load sharing dan transparent proxy semuanya adalah bentuk dari DNAT. Destination NAT dilakukan pada chain PREROUTING, pas ketika paket masuk, hal ini berarti semua tools di dalam router akan melihat paket akn pergi ke tujuan yang sebenarnya . Hal ini juga berarti bahwa opsi '-i' (incoming interface) bisa digunakan. Destination NAT dispesifikasikan dengan menggunakan '-j DNAT' dan opsi '--to-destination' menspesifikasikan sebuah alamat IP, range alamat IP dan range dari port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
+    
+      Sebagai contoh, kita memiliki jaringan LAN internal yang ingin kita amankan. Pada jaringan tersebut terdapat DMZ sebagai HTTP server yang servernya memiliki IP 10.151.73.98. Kita ingin semua HTTP request yang berasal dari jaringan luar (interface eth0) diarahkan ke DMZ tersebut.
+      ```bash
+      # iptables --table nat --append PREROUTING --in-interface eth0 --protocol tcp --dport 80 \
+          --jump DNAT --to-destination 10.151.73.98:80
+
+      # iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j DNAT --to-destination 10.151.73.98:80
+      ```
       
     - **POSTROUTING** chain – pada chain **POSTROUTING** dijalankan SNAT (Source NAT), yaitu ketika anda mengubah alamat asal dari paket pertama dengan kata lain anda mengubah dari mana koneksi terjadi. Source NAT selalu dilakukan setelah routing, sebelum paket keluar ke jaringan. Masquerading adalah contoh dari SNAT. Untuk melakukan Source NAT anda harus merubah asal dari koneksi. Hal ini dilakukan di chain POSTROUTING, saat sebelum keluar. Hal ini sangat penting, dikarenakan berarti tools lain yang di dalam router itu (routing, packet filtering) akan melihat paket itu tidak berubah. Hal ini juga berarti opsi '-o' (outgoing interface) juga bisa digunakan. Source dispesifikasikan dengan menggunakan '-j SNAT', dan juga opsi '--to-source' untuk menspesifikasikan sebuah alamat IP, range alamat IP dan port atau range port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
+    
+       Sebagai contoh, pada modul pendahuluan UML kita telah menjalankan IP masquerading dengan syntax berikut:
+       ```
+       # iptables --table nat --append POSTROUTING --out-interface eth0 --jump MASQUERADE
+       # iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+       ```
+       Rule diatas berarti, source address dari setiap paket yang keluar (`-o`) melalui `eth0` akan diubah menjadi IP dari `eth0` (`MASQUERADE`).
+       
 
 3. **Mangle Table**
 
@@ -192,6 +208,11 @@ man iptables
 ### Praktik
 
 Kita coba menggunakan cheatsheet pada link berikut https://gist.github.com/davydany/0ad377f6de3c70056d2bd0f1549e1017
+
+
+### References
+
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/4/html/Security_Guide/s1-firewall-ipt-fwd.html
 
 
 ## SOAL LATIHAN

@@ -57,6 +57,8 @@ Fasilitas proxy server menggunakan perantara (proxy) sebagai jembatan hubungan a
 4. **Stateful Inspection Firewall**
 Firewall dengan metode stateful inspection ini bekerja di antara lapisan data link dan network referensi model OSI. Jika suatu paket data diterima, langkah pertama yang dilakukan oleh stateful inspection ini adalah memeriksa informasi header paket data dengan tabel state untuk melihat apakah sudah ada jalur yang tersedia untuk paket tersebut. Jika jalur sudah tersedia, maka stateful inspection membuat asumsi bahwa paket boleh diterima dan diteruskan ke tujuannya. Jika jalur belum tersedia, maka stateful inspection mencocokkan paket data dengan peraturan keamanan (security policy) yang telah dibuat untuk menentukan apakah paket mendapat izin untuk diteruskan. Stateful inspection terus-menerus mengawasi setiap koneksi yang terjadi dan membuat catatan pada tabel status yang dimilikinya.
 
+5. 
+
 Kali ini kita akan mempelajari bagaimana **Packet-Filtering Firewall** menggunakan `$ iptables`. Sekarang kita perhatikan dokumentasinya pada `$ man iptables`.
 
 ## **5. IPTables**
@@ -109,7 +111,7 @@ IPTables mempunyai 4 *built-in tables*.
 2. **NAT Table**
 
     NAT Table berfungsi untuk mentranslasikan jaringan lokal yang melewati firewall menuju jaringan luar. NAT Table memiliki *built-in chain*, yaitu :
-    - **PREROUTING** chain – pada chain **PREROUTING**, dijalankan DNAT (Destination NAT) yaitu ketika anda mengubah alamat tujuan dari paket pertama dengan kata lain anda merubah ke mana komunikasi terjadi. Destination NAT selalu dilakukan sebelum routing, ketika paket masuk dari jaringan. Port forwarding, load sharing dan transparent proxy semuanya adalah bentuk dari DNAT. Destination NAT dilakukan pada chain PREROUTING, pas ketika paket masuk, hal ini berarti semua tools di dalam router akan melihat paket akn pergi ke tujuan yang sebenarnya . Hal ini juga berarti bahwa opsi '-i' (incoming interface) bisa digunakan. Destination NAT dispesifikasikan dengan menggunakan '-j DNAT' dan opsi '--to-destination' menspesifikasikan sebuah alamat IP, range alamat IP dan range dari port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
+    - **PREROUTING** chain – pada chain **PREROUTING**, dijalankan DNAT (Destination NAT) yaitu ketika anda mengubah alamat tujuan dari paket pertama dengan kata lain anda merubah ke mana komunikasi terjadi. Destination NAT selalu dilakukan sebelum routing, ketika paket masuk dari jaringan. Port forwarding, load sharing dan transparent proxy semuanya adalah bentuk dari DNAT. Destination NAT dilakukan pada chain PREROUTING, pas ketika paket masuk, hal ini berarti semua tools di dalam router akan melihat paket akan pergi ke tujuan yang sebenarnya. Hal ini juga berarti bahwa opsi `-i` (incoming interface) bisa digunakan. Destination NAT dispesifikasikan dengan menggunakan `-j DNAT` dan opsi `--to-destination` menspesifikasikan sebuah alamat IP, range alamat IP dan range dari port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
     
       Sebagai contoh, kita memiliki jaringan LAN internal yang ingin kita amankan. Pada jaringan tersebut terdapat DMZ sebagai HTTP server yang servernya memiliki IP 10.151.73.98. Kita ingin semua HTTP request yang berasal dari jaringan luar (interface eth0) diarahkan ke DMZ tersebut.
       ```bash
@@ -119,9 +121,9 @@ IPTables mempunyai 4 *built-in tables*.
       # iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j DNAT --to-destination 10.151.73.98:80
       ```
       
-    - **POSTROUTING** chain – pada chain **POSTROUTING** dijalankan SNAT (Source NAT), yaitu ketika anda mengubah alamat asal dari paket pertama dengan kata lain anda mengubah dari mana koneksi terjadi. Source NAT selalu dilakukan setelah routing, sebelum paket keluar ke jaringan. Masquerading adalah contoh dari SNAT. Untuk melakukan Source NAT anda harus merubah asal dari koneksi. Hal ini dilakukan di chain POSTROUTING, saat sebelum keluar. Hal ini sangat penting, dikarenakan berarti tools lain yang di dalam router itu (routing, packet filtering) akan melihat paket itu tidak berubah. Hal ini juga berarti opsi '-o' (outgoing interface) juga bisa digunakan. Source dispesifikasikan dengan menggunakan '-j SNAT', dan juga opsi '--to-source' untuk menspesifikasikan sebuah alamat IP, range alamat IP dan port atau range port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
+    - **POSTROUTING** chain – pada chain **POSTROUTING** dijalankan SNAT (Source NAT), yaitu ketika anda mengubah alamat asal dari paket pertama dengan kata lain anda mengubah dari mana koneksi terjadi. Source NAT selalu dilakukan setelah routing, sebelum paket keluar ke jaringan. Masquerading adalah contoh dari `SNAT`. Untuk melakukan Source NAT anda harus merubah asal dari koneksi. Hal ini dilakukan di chain POSTROUTING, saat sebelum keluar. Hal ini sangat penting, dikarenakan berarti tools lain yang di dalam router itu (routing, packet filtering) akan melihat paket itu tidak berubah. Hal ini juga berarti opsi `-o` (outgoing interface) juga bisa digunakan. Source dispesifikasikan dengan menggunakan `-j SNAT`, dan juga opsi `--to-source` untuk menspesifikasikan sebuah alamat IP, range alamat IP dan port atau range port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
     
-       Sebagai contoh, pada modul pendahuluan UML kita telah menjalankan IP masquerading dengan syntax berikut:
+       Sebagai contoh, pada modul pengenalan UML kita telah menjalankan IP masquerading dengan syntax berikut:
        ```
        # iptables --table nat --append POSTROUTING --out-interface eth0 --jump MASQUERADE
        # iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
@@ -131,20 +133,13 @@ IPTables mempunyai 4 *built-in tables*.
 
 3. **Mangle Table**
 
-    Mangle Table berfungsi untuk melakukan perubahan pada paket data. Perubahan yang dilakukan pada TCP header. Mangle Table memiliki *built-in chain*, yaitu :
+    Mangle Table berfungsi untuk melakukan perubahan pada paket data. Perubahan yang dilakukan pada TCP header untuk memodifikasi QOS (*Quality of Service*) pada paket tersebut. Mangle Table memiliki *built-in chain*, yaitu :
 
     - **PREROUTING** chain
     - **OUTPUT** chain
     - **FORWARD** chain
     - **INPUT** chain
     - **POSTROUTING** chain
-
-4. **Raw Table**
-
-    Raw Table berfungsi untuk konfigurasi   pengecualian paket yang melewati firewall. Raw Table memiliki *built-in chain*, yaitu :
-
-    - **PREROUTING** chain
-    - **OUTPUT** chain
 
 3 Table utama pada IPTables dapat digambarkan sebagai berikut.
 
@@ -155,14 +150,21 @@ IPTables mempunyai 4 *built-in tables*.
 Hal-hal yang perlu diingat untuk memberlakukan *rules* pada IPTables, yaitu :
 
 - **Rules** mempunyai kriteria dan target.
-- **Jika** kriteria sudah **sesuai**, firewall akan mengeksekusi *rules* pada target atau suatu nilai (parameter) yang disebutkan pada target.
+- **Jika** kriteria sudah **sesuai**, firewall akan mengeksekusi *rule* pada target atau suatu nilai (parameter) yang disebutkan pada target.
 - **Jika** kriteria **tidak sesuai**, firewall akan mengeksekusi *rule* yang selanjutnya.
 
-Tujuan paket yang dapat di definisikan pada target, yaitu :
+Tujuan paket yang dapat di definisikan pada target, beberapa target yang sering digunakan adalah :
 
 1. **ACCEPT** – Firewall akan mengizinkan paket data.
 2. **DROP** – Firewall akan menolak paket data.
 3. **RETURN** – Firewall akan berhenti mengeksekusi rangkaian *rules* pada chain untuk paket data tersebut dan aturan pada *chain* tersebut dieksekusi ulang.
+4. **MASQUERADE** – Target yang hanya berlaku pada **NAT Table**. Digunakan untuk mendefinisikan paket diarahkan ke subnet mana. Biasanya hanya digunakan untuk IP dinamis, jika menggunakan IP statis, maka gunakan **SNAT** target.
+5. **REJECT** – Firewall akan menolak paket dan mengirimkan error message.
+
+Untuk lebih lengkapnya dapat dilihat pada dokumentasi extension dari iptables
+```bash
+man iptables-extension
+```
 
 #### Syntax
 
@@ -174,46 +176,75 @@ iptables [-t table] command chain rule-specification
 
 Beberapa command yang sering digunakan pada iptables :
 
-| Commands, Syntax                                        | Description                                      |
-| ------------------------------------------------------- |:------------------------------------------------ |
-| -A or --append chain rule-specification                 | menambahkan rules pada chain
-| -C or --check chain rule-specification                  | mengecek rule apa saja yang berlaku pada chain
-| -D or --delete chain {rule-specification \| rulenum}    | menghapus rules pada chain
-| -I or --insert chain [rulenum] rule-specification       | menyisipkan rules pada urutan tertentu
-| -R or --replace chain rulenum rule-specification        | mengganti rules pada chain tertentu
-| -L or --list [chain]                                    | melihat daftar rules yang berlaku berdasarkan chain
-| -S or --list-rules [chain]                              | melihat semua rules yang berlaku pada chain
-| -F or --flush [chain]                                   | menghilangkan semua rules pada chain tertentu (semua chain jika chain tidak disebutkan)
+| Command and Syntax                                        | Description                                                                             | Example                                         |
+| --------------------------------------------------------- |:--------------------------------------------------------------------------------------- |:----------------------------------------------- |
+| `-A, --append chain rule-specification`                   | menambahkan rules pada chain  | `iptables -A INPUT -s 10.151.36.0/24 -j DROP` 
+| `-C, --check chain rule-specification`                    | mengecek rule apa saja yang berlaku pada chain    | `iptables -C INPUT -s 10.151.36.0/24 -j DROP`
+| `-D, --delete chain {rule-specification \| rulenum}`      | menghapus rules pada chain    | `iptables -D INPUT -s 10.151.36.0/24 -j DROP`
+| `-I, --insert chain [rulenum] rule-specification`         | menyisipkan rules pada urutan tertentu    | `iptables -I OUTPUT 2 -s 10.151.36.0/24 -j DROP`
+| `-R, --replace chain rulenum rule-specification`          | mengganti rules pada chain tertentu   | `iptables -I OUTPUT 2 -s 10.151.36.0/24 -j DROP`
+| `-L, --list [chain]`                                      | melihat daftar rules yang berlaku berdasarkan chain   | `iptables -L INPUT`
+| `-S, --list-rules [chain]`                                | melihat semua rules yang berlaku pada firewall   | `iptables -S INPUT`, `iptables -n -L -v --line-numbers`
+| `-F, --flush [chain]`                                     | menghilangkan semua rules pada chain tertentu (semua chain jika chain tidak disebutkan) | `iptables -F INPUT`
+
+**Penjelasan :**
+
+- `rule-specification` = `[matches...] [target]`
+- `match` = `-m matchname [per-match-options]`
+- `target` = `-j targetname [per-target-options]`
+- `[]` = syntax tersebut bersifat opsional
 
 Beberapa parameter yang perlu diketahui :
 
 | Parameter                         | Descripton                        |
 | --------------------------------- | :-------------------------------- |
-| -m, --match match                 | 
-| -j, --jump target                 | 
-| -g, --goto chain                  | 
-| [!] -i, --in-interface name       | 
-| [!] -o, --out-interface name      | 
-| -c, --set-counters packets bytes  | 
-| --line-numbers                    | 
-| --to                              | 
-| --from                            | 
+| `-m, --match match`                 | mendefinisikan kesesuaian rule untuk tujuannya ke mana
+| `-j, --jump target`                 | mendefinisikan rule akan menggunakan taeget yang mana
+| `[!] -i, --in-interface name`       | mendefinisikan opsi interface yang dilihat masuk paketnya
+| `[!] -o, --out-interface name`      | mendefinisikan opsi interface yang dilihat keluar paketnya
+| `--line-numbers`                    | untuk melihat nomor urutan rules pada table
+| `--to`                              | untuk mendefinisikan alamat tujuan paket
+| `--from`                            | untuk mendefinisikan alamat asal paket
 
-Untuk opsi command maupun parameter lebih lengkap dapat dilihat pada dokumentasi `iptables`, dengan menjalankan
+Untuk opsi command maupun parameter lebih lengkap dapat dilihat pada dokumentasi `iptables`, 
 
 ```bash
-man iptables
+man iptables-extension
 ```
 
-### Praktik
+### **Praktik**
 
-Kita coba menggunakan cheatsheet pada link berikut https://gist.github.com/davydany/0ad377f6de3c70056d2bd0f1549e1017
+#### List default policy for each chain
+```bash
+iptables -L | grep policy
+```
 
+#### Change the default policy for a Chain
+```bash
+iptables --policy {ACCEPT | DROP}
+```
+
+#### Set Default Policy for INPUT to ACCEPT
+
+```bash
+iptables --policy INPUT ACCEPT
+```
+
+#### Set Default Policy for OUTPUT to DROP
+
+```bash
+iptables --policy OUTPUT DROP
+```
+
+#### Set Default Policy for FORWARD to REJECT
+
+```bash
+iptables --policy FORWARD ACCEPT
+```
 
 ### References
 
 https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/4/html/Security_Guide/s1-firewall-ipt-fwd.html
-
 
 ## SOAL LATIHAN
 

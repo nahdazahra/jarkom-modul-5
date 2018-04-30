@@ -81,7 +81,7 @@ IPTables mempunyai 4 *built-in tables*.
 
     Table ini adalah tabel default pada iptables. Jadi, jika kita tidak mendefinisikan table yang kita gunakan pada iptables, maka secara default menggunakan Filter table. Filter Table memiliki *built-in chain*, yaitu :
     - **INPUT** chain – Untuk memfilter paket yang menuju jaringan lokal. Contoh syntax:
-      ```bash
+      ```
       # iptables --append INPUT --source 10.151.36.0/24 --jump DROP
       # iptables -A INPUT -s 10.151.36.0/24 -j DROP
       
@@ -90,7 +90,7 @@ IPTables mempunyai 4 *built-in tables*.
       ```
       
     - **OUTPUT** chain – Untuk memfilter paket yang dari jaringan lokal ke jaringan luar. Contoh syntax:
-      ```bash
+      ```
       # iptables --append OUTPUT --destination 10.151.36.5 --jump DROP
       # iptables -A OUTPUT -d 10.151.36.5 -j DROP
       

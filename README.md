@@ -253,18 +253,6 @@ iptables -A INPUT -s 10.10.10.0/24 -j DROP
 # -j <ACTION> : (jump) - mendefinisikan apa yang harus dilakukan ketika paket sesuai dengan rule tersebut.
 ```
 
-#### REJECT OUTBOUND Connections for an IP on a Specific Port (SSH)
-
-```bash
-iptables -A OUTPUT -p tcp --dport 22 -s 10.10.10.10 -j REJECT
-
-# Penjelasan :
-# REJECT semua koneksi dari alamat IP 10.10.10.10 pada port 22 (TCP).
-# -A <CHAIN>  : menambahakan rule yang dispesifikasikan
-# -s <SOURCE> : SOURCE - alamat asal dari sebuah koneksi 
-# -j <ACTION> : (jump) - mendefinisikan apa yang harus dilakukan ketika paket sesuai dengan rule tersebut.
-```
-
 #### DROP All OUTGOING Connections; ALLOW only CONNECTIONS to 192.168.1.1
 
 ```bash

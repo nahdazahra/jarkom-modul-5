@@ -57,8 +57,6 @@ Fasilitas proxy server menggunakan perantara (proxy) sebagai jembatan hubungan a
 4. **Stateful Inspection Firewall**
 Firewall dengan metode stateful inspection ini bekerja di antara lapisan data link dan network referensi model OSI. Jika suatu paket data diterima, langkah pertama yang dilakukan oleh stateful inspection ini adalah memeriksa informasi header paket data dengan tabel state untuk melihat apakah sudah ada jalur yang tersedia untuk paket tersebut. Jika jalur sudah tersedia, maka stateful inspection membuat asumsi bahwa paket boleh diterima dan diteruskan ke tujuannya. Jika jalur belum tersedia, maka stateful inspection mencocokkan paket data dengan peraturan keamanan (security policy) yang telah dibuat untuk menentukan apakah paket mendapat izin untuk diteruskan. Stateful inspection terus-menerus mengawasi setiap koneksi yang terjadi dan membuat catatan pada tabel status yang dimilikinya.
 
-5. 
-
 Kali ini kita akan mempelajari bagaimana **Packet-Filtering Firewall** menggunakan `$ iptables`. Sekarang kita perhatikan dokumentasinya pada `$ man iptables`.
 
 ## **5. IPTables**
@@ -111,7 +109,7 @@ IPTables mempunyai 4 *built-in tables*.
 2. **NAT Table**
 
     NAT Table berfungsi untuk mentranslasikan jaringan lokal yang melewati firewall menuju jaringan luar. NAT Table memiliki *built-in chain*, yaitu :
-    - **PREROUTING** chain – pada chain **PREROUTING**, dijalankan DNAT (Destination NAT) yaitu ketika anda mengubah alamat tujuan dari paket pertama dengan kata lain anda merubah ke mana komunikasi terjadi. Destination NAT selalu dilakukan sebelum routing, ketika paket masuk dari jaringan. Port forwarding, load sharing dan transparent proxy semuanya adalah bentuk dari DNAT. Destination NAT dilakukan pada chain PREROUTING, pas ketika paket masuk, hal ini berarti semua tools di dalam router akan melihat paket akan pergi ke tujuan yang sebenarnya. Hal ini juga berarti bahwa opsi `-i` (incoming interface) bisa digunakan. Destination NAT dispesifikasikan dengan menggunakan `-j DNAT` dan opsi `--to-destination` menspesifikasikan sebuah alamat IP, range alamat IP dan range dari port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
+    - **PREROUTING** chain – pada chain **PREROUTING**, dijalankan DNAT (Destination NAT) yaitu ketika anda mengubah alamat tujuan dari paket pertama dengan kata lain anda merubah ke mana komunikasi terjadi. Destination NAT selalu dilakukan sebelum routing, ketika paket masuk dari jaringan. Port forwarding, load sharing dan transparent proxy semuanya adalah bentuk dari DNAT. Destination NAT dilakukan pada chain PREROUTING, ketika paket masuk, hal ini berarti semua tools di dalam router akan melihat paket akan pergi ke tujuan yang sebenarnya. Hal ini juga berarti bahwa opsi `-i` (incoming interface) bisa digunakan. Destination NAT dispesifikasikan dengan menggunakan `-j DNAT` dan opsi `--to-destination` menspesifikasikan sebuah alamat IP, range alamat IP dan range dari port (hanya untuk protokol UDP dan TCP) yang sifatnya optional.
     
       Sebagai contoh, kita memiliki jaringan LAN internal yang ingin kita amankan. Pada jaringan tersebut terdapat DMZ sebagai HTTP server yang servernya memiliki IP 10.151.73.98. Kita ingin semua HTTP request yang berasal dari jaringan luar (interface eth0) diarahkan ke DMZ tersebut.
       ```bash
@@ -160,8 +158,9 @@ Tujuan paket yang dapat di definisikan pada target, beberapa target yang sering 
 3. **RETURN** – Firewall akan berhenti mengeksekusi rangkaian *rules* pada chain untuk paket data tersebut dan aturan pada *chain* tersebut dieksekusi ulang.
 4. **MASQUERADE** – Target yang hanya berlaku pada **NAT Table**. Digunakan untuk mendefinisikan paket diarahkan ke subnet mana. Biasanya hanya digunakan untuk IP dinamis, jika menggunakan IP statis, maka gunakan **SNAT** target.
 5. **REJECT** – Firewall akan menolak paket dan mengirimkan error message.
+6. **REDIRECT** – Target yang hanya berlaku pada **NAT Table**. Firewall akan mengarahkan paket ke device (mesin) yang digunakannya menggunakan *Primary IP address* (alamat localhost) interface-nya.
 
-Untuk lebih lengkapnya dapat dilihat pada dokumentasi extension dari iptables
+Untuk macam-macam target lebih lengkap, dapat dilihat pada dokumentasi extension dari iptables
 ```bash
 man iptables-extension
 ```
@@ -182,7 +181,7 @@ Beberapa command yang sering digunakan pada iptables :
 | `-C, --check chain rule-specification`                    | mengecek rule apa saja yang berlaku pada chain    | `iptables -C INPUT -s 10.151.36.0/24 -j DROP`
 | `-D, --delete chain {rule-specification \| rulenum}`      | menghapus rules pada chain    | `iptables -D INPUT -s 10.151.36.0/24 -j DROP`
 | `-I, --insert chain [rulenum] rule-specification`         | menyisipkan rules pada urutan tertentu    | `iptables -I OUTPUT 2 -s 10.151.36.0/24 -j DROP`
-| `-R, --replace chain rulenum rule-specification`          | mengganti rules pada chain tertentu   | `iptables -I OUTPUT 2 -s 10.151.36.0/24 -j DROP`
+| `-R, --replace chain rulenum rule-specification`          | mengganti rules pada chain tertentu   | `iptables -R OUTPUT 2 -s 10.151.36.0/24 -j DROP`
 | `-L, --list [chain]`                                      | melihat daftar rules yang berlaku berdasarkan chain   | `iptables -L INPUT`
 | `-S, --list-rules [chain]`                                | melihat semua rules yang berlaku pada firewall   | `iptables -S INPUT`, `iptables -n -L -v --line-numbers`
 | `-F, --flush [chain]`                                     | menghilangkan semua rules pada chain tertentu (semua chain jika chain tidak disebutkan) | `iptables -F INPUT`
@@ -236,7 +235,7 @@ iptables --policy FORWARD ACCEPT
 iptables -A INPUT -s 10.10.10.10 -j ACCEPT
 
 # Penjelasan : 
-# ACCEPTS semua koneksi/paket yang berasal dari IP 10.10.10.10
+# ACCEPTS semua koneksi yang berasal dari IP 10.10.10.10
 # -A <CHAIN>  : menambahakan rule yang dispesifikasikan
 # -s <SOURCE> : SOURCE - alamat asal dari sebuah koneksi 
 # -j <ACTION> : (jump) - mendefinisikan apa yang harus dilakukan ketika paket sesuai dengan rule tersebut.
@@ -248,7 +247,7 @@ iptables -A INPUT -s 10.10.10.10 -j ACCEPT
 iptables -A INPUT -s 10.10.10.0/24 -j DROP
 
 # Penjelasan :
-# BLOK semua paket/koneksi yang berasal dari subnet 10.10.10.0/24 
+# BLOK semua koneksi yang berasal dari subnet 10.10.10.0/24 
 # -A <CHAIN>  : menambahakan rule yang dispesifikasikan
 # -s <SOURCE> : SOURCE - alamat asal dari sebuah koneksi 
 # -j <ACTION> : (jump) - mendefinisikan apa yang harus dilakukan ketika paket sesuai dengan rule tersebut.
@@ -260,7 +259,7 @@ iptables -A INPUT -s 10.10.10.0/24 -j DROP
 iptables -A OUTPUT -p 22 --dport ssh -s 10.10.10.10 -j REJECT
 
 # Penjelasan :
-# REJECTs semua paket\koneksi dari alamat IP 10.10.10.10 pada port 22 (TCP).
+# REJECT semua koneksi dari alamat IP 10.10.10.10 pada port 22 (TCP).
 # -A <CHAIN>  : menambahakan rule yang dispesifikasikan
 # -s <SOURCE> : SOURCE - alamat asal dari sebuah koneksi 
 # -j <ACTION> : (jump) - mendefinisikan apa yang harus dilakukan ketika paket sesuai dengan rule tersebut.

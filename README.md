@@ -256,7 +256,7 @@ iptables -A INPUT -s 10.10.10.0/24 -j DROP
 #### REJECT OUTBOUND Connections for an IP on a Specific Port (SSH)
 
 ```bash
-iptables -A OUTPUT -p 22 --dport ssh -s 10.10.10.10 -j REJECT
+iptables -A OUTPUT -p tcp --dport 22 -s 10.10.10.10 -j REJECT
 
 # Penjelasan :
 # REJECT semua koneksi dari alamat IP 10.10.10.10 pada port 22 (TCP).
